@@ -1,30 +1,71 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './index.css'
+import black from '../../assets/black.png'
+import white from '../../assets/white.png'
 
-export const Cell: React.FC<any> = () => {
-  const data = new Array(226).fill(0).map((num, index) => {
+export const Cell: React.FC<any> = ({
+  index,
+  round,
+  changeRound,
+  isSelected,
+}) => {
+  const [isClick, changeIsClick] = useState(false)
+  const [bgImage, changeBgImage] = useState('')
+
+  const config = {
+    getClassName,
+    onClick: onDivClick,
+  }
+  /**
+   * 返回 div索引为 index 对应的类名 。
+   *
+   * @param {number} index 为索引值。
+   * @return {string} index 对应的类名。
+   */
+  function getClassName(index: number): string {
     if (index === 0) {
-      return null
+      return ''
     } else if (index === 1) {
-      return <div className="cell-top-left" key={index}></div>
+      return 'cell-top-left'
     } else if (index > 1 && index < 15) {
-      return <div className="cell-top" key={index}></div>
+      return 'cell-top'
     } else if (index === 15) {
-      return <div className="cell-top-right" key={index}></div>
+      return 'cell-top-right'
     } else if (index % 15 === 1 && index !== 211) {
-      return <div className="cell-left-center" key={index}></div>
+      return 'cell-left-center'
     } else if (index > 15 && index % 15 > 1 && index < 211) {
-      return <div className="cell-center" key={index}></div>
+      return 'cell-center'
     } else if (index % 15 === 0 && index !== 225) {
-      return <div className="cell-right-center" key={index}></div>
+      return 'cell-right-center'
     } else if (index === 211) {
-      return <div className="cell-bottom-left" key={index}></div>
+      return 'cell-bottom-left'
     } else if (index > 211 && index < 225) {
-      return <div className="cell-bottom" key={index}></div>
+      return 'cell-bottom'
     } else if (index === 225) {
-      return <div className="cell-bottom-right" key={index}></div>
+      return 'cell-bottom-right'
     }
-  })
-  data.shift()
-  return data
+    return ''
+  }
+  const backgroundImage = {
+    backgroundImage: isClick ? `url(${round ? black : white})` : '',
+    backgroundSize: '44px 44px',
+  }
+  function onDivClick() {
+    if (!isSelected) {
+      changeBgImage(round ? black : white)
+      changeRound(index)
+      changeIsClick(true)
+    }
+  }
+
+  return (
+    <div
+      className={config.getClassName(index)}
+      onClick={config.onClick}
+      style={{
+        backgroundSize: '44px 44px',
+        backgroundImage: isClick ? `url(${bgImage})` : '',
+      }}
+    ></div>
+  )
 }

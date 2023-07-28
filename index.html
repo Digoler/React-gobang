@@ -1,0 +1,621 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <title>五子棋</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+
+        box-sizing: border-box;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        background-color: #77570f;
+      }
+
+      .match-info-wrapper {
+        letter-spacing: 4px;
+
+        margin-bottom: 20px;
+
+        color: #fff;
+      }
+
+      .button {
+        border: solid 1px #ddd;
+
+        border-radius: 2px;
+
+        padding: 4px 6px;
+
+        margin: 5px;
+
+        cursor: pointer;
+      }
+
+      .user-wrapper {
+        display: flex;
+
+        justify-content: space-between;
+
+        background-color: #77570f;
+
+        padding: 20px 30px 0 30px;
+
+        color: #fff;
+      }
+
+      .user-wrapper input {
+        font-size: 24px;
+
+        font-weight: bold;
+
+        text-align: center;
+
+        border: none;
+
+        width: 100px;
+
+        background-color: transparent;
+
+        color: #fff;
+
+        box-shadow: 0 0 3px 3px #fff;
+
+        margin: 0 10px;
+      }
+
+      .user-wrapper input.user-black {
+        color: #000;
+
+        font-size: 26px;
+
+        font-weight: normal;
+      }
+
+      .user-block {
+        display: flex;
+
+        align-items: center;
+      }
+
+      .user-block .chess-piece {
+        margin: 0;
+      }
+
+      .user-result-text {
+        font-size: 18px;
+
+        font-weight: bold;
+
+        color: #eaf453;
+      }
+
+      .user-score-text {
+        color: #21d2cf;
+
+        letter-spacing: 4px;
+
+        margin: 0 10px;
+      }
+
+      .chessboard-wrapper {
+        padding: 25px;
+
+        background-color: #77570f;
+
+        position: relative;
+      }
+
+      .chessboard-hidden {
+        z-index: 100;
+
+        position: absolute;
+
+        left: 0;
+
+        top: 0;
+
+        right: 0;
+
+        bottom: 0;
+      }
+
+      .chess-board-table {
+        border: solid 1px #aaa;
+
+        position: relative;
+      }
+
+      .chess-row {
+        border-bottom: solid 1px #ccc;
+      }
+
+      .chess-cell {
+        border-right: solid 1px #ccc;
+
+        display: inline-block;
+
+        height: 50px;
+
+        width: 50px;
+
+        overflow: hidden;
+      }
+
+      .chess-row-hidden,
+      .chess-cell-hidden {
+        border: none;
+      }
+
+      .chess-row:last-child,
+      .chess-cell:last-child {
+        border: none;
+      }
+
+      .chess-piece {
+        margin-top: 9px;
+
+        margin-left: 7px;
+
+        height: 40px;
+
+        width: 40px;
+
+        display: inline-block;
+
+        border-radius: 20px;
+      }
+
+      .chess-white {
+        border: groove 1px #fff;
+
+        background-color: #fff;
+      }
+
+      .chess-black {
+        border: groove 1px #252222;
+
+        background-color: #252222;
+      }
+
+      .breath {
+        animation: border-flash 800ms ease-out infinite alternate;
+
+        color: #fae82b;
+
+        border: solid 3px #eee;
+      }
+
+      @keyframes border-flash {
+        0% {
+          border-color: rgb(37, 118, 173);
+
+          box-shadow:
+            0 0 5px rgba(88, 123, 238, 0.2),
+            inset 0 0 5px rgba(49, 223, 223, 0.1),
+            0 0 0 rgb(62, 202, 230);
+        }
+
+        100% {
+          border-color: rgb(53, 181, 245);
+
+          box-shadow:
+            0 0 20px rgba(104, 222, 251, 0.6),
+            inset 0 0 10px rgba(96, 213, 236, 0.4),
+            0 0 0 rgb(85, 166, 247);
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <div class="match-info-wrapper">
+        <span id="currentGameInfo"></span>
+
+        总共
+        <select id="totalGamesSelector"></select>
+        局
+        <span class="button" onclick="nextGame()">下一局</span>
+
+        <span class="button" onclick="reset()">重置</span>
+        <div></div>
+      </div>
+
+      <div class="user-wrapper">
+        <span class="user-block">
+          <span id="userWhite" class="chess-piece chess-white breath"></span>
+
+          <input value="白棋" id="whiteName" />
+
+          <span class="user-score-text" id="userWhiteScore"></span>
+
+          <span class="user-result-text" id="userWhiteResult"></span>
+        </span>
+
+        <span class="user-block">
+          <span class="user-result-text" id="userBlackResult"></span>
+
+          <span class="user-score-text" id="userBlackScore"></span>
+
+          <input value="黑棋" class="user-black" id="blackName" />
+
+          <span id="userBlack" class="chess-piece chess-black"></span>
+        </span>
+      </div>
+
+      <div class="chessboard-wrapper">
+        <div
+          id="chessBoardHidden"
+          class="chessboard-hidden"
+          onclick="onChess(event)"
+        ></div>
+
+        <div id="chessBoardTable" class="chess-board-table"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const matchInfo = {
+      totalGames: 3,
+      currentGame: 1,
+      currentGameIsFinished: false,
+      currentUser: 'white',
+    }
+
+    const size = 15
+
+    const userWhite = { result: [0, 0, 0] }
+
+    const userBlack = { result: [0, 0, 0] }
+
+    const userWhiteAvatar = document.getElementById('userWhite')
+
+    const userBlackAvatar = document.getElementById('userBlack')
+
+    const whiteName = document.getElementById('whiteName')
+
+    const blackName = document.getElementById('blackName')
+
+    const userWhiteResult = document.getElementById('userWhiteResult')
+
+    const userWhiteScore = document.getElementById('userWhiteScore')
+
+    const userBlackResult = document.getElementById('userBlackResult')
+
+    const userBlackScore = document.getElementById('userBlackScore')
+
+    const chessBoardHidden = document.getElementById('chessBoardHidden')
+
+    const currentGameInfo = document.getElementById('currentGameInfo')
+
+    const totalGamesSelector = document.getElementById('totalGamesSelector')
+
+    const totalPieces = size * size
+
+    let whitePieces = []
+
+    let blackPieces = []
+
+    let options = ''
+
+    for (let i = 1; i < 51; i++) {
+      options += `<option value="${i}">${i}</option>`
+    }
+
+    totalGamesSelector.innerHTML = options
+
+    totalGamesSelector.value = String(matchInfo.totalGames)
+
+    totalGamesSelector.onchange = (e) => {
+      matchInfo.totalGames = Number(e.target.value)
+
+      matchInfo.currentGame = 1
+
+      matchInfo.currentGameIsFinished = false
+
+      start()
+    }
+
+    start()
+
+    function start() {
+      setChessTable()
+
+      setScoreInfo()
+
+      initialGame()
+    }
+
+    function initialGame() {
+      whitePieces = []
+
+      blackPieces = []
+
+      whiteName.className = whiteName.className.replace(' breath', '')
+
+      blackName.className = blackName.className.replace(' breath', '')
+
+      currentGameInfo.innerText = `第${matchInfo.currentGame}局，`
+
+      setChessBox()
+    }
+
+    function setChessBox() {
+      const rows = []
+
+      for (let i = 0; i < size; i++) {
+        let cells = ''
+
+        for (let j = 0; j < size; j++) {
+          cells += `<span class="chess-cell chess-cell-hidden" data-rowindex="${i}" data-columnindex="${j}"></span>`
+        }
+
+        rows.push(`<div class="chess-row chess-row-hidden">${cells}</div>`)
+      }
+
+      chessBoardHidden.innerHTML = rows.join('')
+    }
+
+    function setChessTable() {
+      const rows = []
+
+      for (let i = 0; i < size - 1; i++) {
+        let cells = ''
+
+        for (let j = 0; j < size - 1; j++) {
+          cells += `<span class="chess-cell"></span>`
+        }
+
+        rows.push(`<div class="chess-row">${cells}</div>`)
+      }
+
+      chessBoardTable.innerHTML = rows.join('')
+    }
+
+    function onChess(e) {
+      if (matchInfo.currentGameIsFinished) {
+        return
+      }
+
+      const cell = e.srcElement
+
+      if (cell.dataset.rowindex !== undefined) {
+        cell.innerHTML = `<span class="chess-piece chess-${matchInfo.currentUser}"></span>`
+
+        if (matchInfo.currentUser === 'white') {
+          matchInfo.currentUser = 'black'
+
+          userBlackAvatar.className = 'chess-piece chess-black breath'
+
+          userWhiteAvatar.className = 'chess-piece chess-white'
+
+          whitePieces.push({
+            rowIndex: Number(cell.dataset.rowindex),
+
+            columnIndex: Number(cell.dataset.columnindex),
+          })
+        } else {
+          matchInfo.currentUser = 'white'
+
+          userBlackAvatar.className = 'chess-piece chess-black'
+
+          userWhiteAvatar.className = 'chess-piece chess-white breath'
+
+          blackPieces.push({
+            rowIndex: Number(cell.dataset.rowindex),
+
+            columnIndex: Number(cell.dataset.columnindex),
+          })
+        }
+
+        checkGame()
+      }
+    }
+
+    function checkGame() {
+      const isWin = (pieces) => {
+        for (let i = 0; i < pieces.length; i++) {
+          let horizontalNumber = 1
+
+          let verticalNumber = 1
+
+          let downLeft = 1
+
+          let downRight = 1
+
+          for (let plus = 1; plus <= 4; plus++) {
+            if (
+              pieces.some(
+                (piece) =>
+                  piece.columnIndex === pieces[i].columnIndex + plus &&
+                  piece.rowIndex === pieces[i].rowIndex,
+              )
+            ) {
+              horizontalNumber++
+            }
+
+            if (
+              pieces.some(
+                (piece) =>
+                  piece.rowIndex === pieces[i].rowIndex + plus &&
+                  piece.columnIndex === pieces[i].columnIndex,
+              )
+            ) {
+              verticalNumber++
+            }
+
+            if (i + 4 <= size) {
+              if (
+                pieces.some(
+                  (piece) =>
+                    piece.rowIndex === pieces[i].rowIndex + plus &&
+                    piece.columnIndex === pieces[i].columnIndex + plus,
+                )
+              ) {
+                downRight++
+              }
+
+              if (
+                pieces.some(
+                  (piece) =>
+                    piece.rowIndex === pieces[i].rowIndex + plus &&
+                    piece.columnIndex === pieces[i].columnIndex - plus,
+                )
+              ) {
+                downLeft++
+              }
+            }
+          }
+
+          if (
+            Math.max(horizontalNumber, verticalNumber, downLeft, downRight) ===
+            5
+          ) {
+            return true
+          }
+        }
+
+        return false
+      }
+
+      const isWhiteWin = isWin(whitePieces)
+
+      const isBlackWin = isWhiteWin ? false : isWin(blackPieces)
+
+      if (isWhiteWin) {
+        userWhite.result[0]++
+
+        userBlack.result[1]++
+
+        whiteName.className = whiteName.className + ' breath'
+
+        matchInfo.currentGameIsFinished = true
+
+        setTimeout(() => alert(`恭喜，本局${whiteName.value}获胜！`), 100)
+      }
+
+      if (isBlackWin) {
+        userWhite.result[1]++
+
+        userBlack.result[0]++
+
+        blackName.className = blackName.className + ' breath'
+
+        matchInfo.currentGameIsFinished = true
+
+        setTimeout(() => alert(`恭喜，本局${blackName.value}获胜！`), 100)
+      }
+
+      if (
+        !isWhiteWin &&
+        !isBlackWin &&
+        whitePieces.length + blackPieces.length === totalPieces
+      ) {
+        userWhite.result[2]++
+
+        userBlack.result[2]++
+
+        matchInfo.currentGameIsFinished = true
+      }
+
+      if (matchInfo.currentGameIsFinished) {
+        setScoreInfo()
+
+        checkMatch()
+      }
+    }
+
+    function checkMatch() {
+      if (matchInfo.totalGames === matchInfo.currentGame) {
+        if (userWhite.result[0] > userBlack.result[0]) {
+          userWhiteResult.innerText = '胜'
+
+          userBlackResult.innerText = '负'
+
+          userWhiteResult.className = userWhiteResult.className + ' breath'
+
+          setTimeout(() => alert(`恭喜，本场比赛${whiteName.value}获胜！`), 100)
+        } else if (userWhite.result[0] < userBlack.result[0]) {
+          userWhiteResult.innerText = '负'
+
+          userBlackResult.innerText = '胜'
+
+          userBlackResult.className = userBlackResult.className + ' breath'
+
+          setTimeout(() => alert(`恭喜，本场比赛${blackName.value}获胜！`), 100)
+        } else {
+          userWhiteResult.innerText = '平'
+
+          userBlackResult.innerText = '平'
+
+          setTimeout(() => alert(`本场比赛双方握手言和！`), 100)
+        }
+      }
+    }
+
+    function nextGame() {
+      if (
+        matchInfo.totalGames === matchInfo.currentGame ||
+        !matchInfo.currentGameIsFinished
+      ) {
+        return
+      }
+
+      matchInfo.currentGame++
+
+      matchInfo.currentGameIsFinished = false
+
+      initialGame()
+    }
+
+    function reset() {
+      if (!confirm('确定要重置吗？')) {
+        return
+      }
+
+      matchInfo.currentGame = 1
+
+      matchInfo.currentGameIsFinished = false
+
+      userWhiteResult.innerText = ''
+
+      userBlackResult.innerText = ''
+
+      userWhiteResult.className = userWhiteResult.className.replace(
+        ' breath',
+        '',
+      )
+
+      userBlackResult.className = userBlackResult.className.replace(
+        ' breath',
+        '',
+      )
+
+      userWhite.result = [0, 0, 0]
+
+      userBlack.result = [0, 0, 0]
+
+      start()
+    }
+
+    function setScoreInfo() {
+      userWhiteScore.innerText = `${userWhite.result[0]}胜${userWhite.result[1]}负${userWhite.result[2]}平`
+
+      userBlackScore.innerText = `${userBlack.result[0]}胜${userBlack.result[1]}负${userBlack.result[2]}平`
+    }
+  </script>
+</html>
