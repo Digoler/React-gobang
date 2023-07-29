@@ -1,38 +1,81 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.wrap {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.black-score {
+  width: 100px;
+  height: 122px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.chess-black {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  background-color: #000;
+  color: #fff;
+}
+
+.white-score {
+  width: 100px;
+  height: 122px;
+}
+span {
+  font-size: 30px;
+  font-weight: bold;
+}
+.chess-white {
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  background-color: #fff;
+  color: #000;
+}
+
+.score {
+  margin-top: 25px;
+  text-align: center;
+  width: 100%;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+}
+button {
+  width: 200px;
+  height: 89px;
+  border-radius: 44px;
+  padding: 22px, 24px, 22px, 24px;
+  gap: 24px;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 20px;
+}
+.btn1 {
+  background-color: #000;
+  color: #fff;
+}
+.btn2 {
+  background-color: #aaaaaa;
+  color: #fff;
+}
+.btn3 {
+  background-color: #fff;
+}
+
+button:hover {
+  color: red;
+  padding-bottom: 8px;
 }
