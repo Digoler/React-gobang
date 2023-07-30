@@ -6,7 +6,6 @@ export const Cell: React.FC<any> = ({
   changeRound,
   bgImage,
   isBegin,
-  squares,
 }) => {
   const config = {
     getClassName,
