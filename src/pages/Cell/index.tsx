@@ -1,17 +1,13 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './index.css'
-import black from '../../assets/black.png'
-import white from '../../assets/white.png'
 
 export const Cell: React.FC<any> = ({
   index,
-  round,
   changeRound,
-  isSelected,
+  bgImage,
+  isBegin,
+  squares,
 }) => {
-  const [isClick, changeIsClick] = useState(false)
-  const [bgImage, changeBgImage] = useState('')
-
   const config = {
     getClassName,
     onClick: onDivClick,
@@ -46,15 +42,13 @@ export const Cell: React.FC<any> = ({
     }
     return ''
   }
-  const backgroundImage = {
-    backgroundImage: isClick ? `url(${round ? black : white})` : '',
+  let backgroundImage = {
     backgroundSize: '44px 44px',
+    backgroundImage: `url(${bgImage})`,
   }
-  function onDivClick() {
-    if (!isSelected) {
-      changeBgImage(round ? black : white)
+  function onDivClick(): any {
+    if (isBegin) {
       changeRound(index)
-      changeIsClick(true)
     }
   }
 
@@ -62,10 +56,7 @@ export const Cell: React.FC<any> = ({
     <div
       className={config.getClassName(index)}
       onClick={config.onClick}
-      style={{
-        backgroundSize: '44px 44px',
-        backgroundImage: isClick ? `url(${bgImage})` : '',
-      }}
+      style={backgroundImage}
     ></div>
   )
 }
