@@ -23,7 +23,7 @@ export const ServeHistory: React.FC<any> = ({
     message.success('删除成功')
   }
   function deleteRecordCancel() {
-    message.error('取消删除')
+    message.error('取消还原')
   }
 
   const confirm = (index: number) => {
@@ -33,7 +33,7 @@ export const ServeHistory: React.FC<any> = ({
   }
 
   const cancel = () => {
-    message.error('取消还原')
+    message.error('取消删除')
   }
   return (
     <Modal
@@ -58,7 +58,7 @@ export const ServeHistory: React.FC<any> = ({
           return (
             <div className="item" key={index}>
               <div className="order">{index}</div>
-              <div className="time">2023年7月30日23：25</div>
+              <div className="time">{item.time}</div>
               <div className="image">
                 <Image
                   width={100}

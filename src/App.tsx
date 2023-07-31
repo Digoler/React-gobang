@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { Board } from './pages/Board'
 import { Popup } from './pages/Popup'
@@ -8,6 +8,10 @@ import white from './assets/white.png'
 // import { Navigate } from './pages/Navigate'
 import html2canvas from 'html2canvas'
 import { ServeHistory } from './pages/serveHistory'
+import { PlayHistory } from './pages/PlayHistory'
+import dayjs from 'dayjs'
+import background from './assets/background.jpeg'
+import { Progress } from 'antd'
 
 function judgeWinner(
   squares: any,
@@ -18,6 +22,7 @@ function judgeWinner(
   setBegin: Function,
 ) {
   let isWin = judge(squares, index, type)
+  console.log('isWin---', isWin)
   if (isWin) {
     if (round) {
       setScore.setBlackStore((store: number) => store + 10)
@@ -37,20 +42,24 @@ function App() {
   const [blackStore, setBlackStore] = useState(0) //设置黑棋的分数
   const [whiteStore, setWhiteStore] = useState(0) //设置白棋的分数
   const [round, setRound] = useState(false) //false代表白棋、true代表黑棋
-  let [winner, setWinner] = useState('')
-  let [history, setHistory] = useState([
+  const [winner, setWinner] = useState('')
+  const [history, setHistory] = useState([
     {
       squares: Array(226).fill(null),
     },
   ]) //历史记录列表：null表示空，black表示这格为黑色、white表示这格为白色
   //保存的记录列表
-  let [serveHistorys, setServeHistorys] = useState<any>([])
+  const [serveHistorys, setServeHistorys] = useState<any>([])
+  //比赛记录
+  const [playHistory, setPlayHistory] = useState<any>([])
   //squares是history中的最新值
   const squares = useMemo(() => {
     return history[history.length - 1].squares
   }, [history])
   //点击打开保存记录
   const [open, setOpen] = useState(false)
+  //点击打开比赛记录
+  const [playOpen, setPlayOpen] = useState(false)
   //用于设置分数的函数
   const setStore = {
     setBlackStore,
@@ -58,6 +67,7 @@ function App() {
   }
   //改变回合触发的回调函数
   function changeRound(index: number) {
+    console.log('squares---', [...squares])
     //以下是添加新的历史值
     const tempSquares = [...squares]
     if (tempSquares[index]) {
@@ -73,6 +83,7 @@ function App() {
     setHistory(tempHistory)
     //判断输赢
     setTimeout(() => {
+      console.log('squares AFTER---', [...squares])
       let _winner = judgeWinner(
         squares,
         index,
@@ -81,6 +92,26 @@ function App() {
         tempSquares[index],
         setBegin,
       )
+      //添加历史记录到历史记录列表
+      if (_winner) {
+        let board = document.querySelector('.board') as HTMLElement
+        html2canvas(board).then(function (canvas) {
+          const image = new Image()
+          // 将 Canvas 转换为图像
+          image.src = canvas.toDataURL()
+          image.style.width = '100px'
+          image.style.height = '100px'
+          setPlayHistory([
+            ...playHistory,
+            {
+              squares: [...squares],
+              image: image,
+              winner: _winner,
+              time: dayjs(new Date()).format('YYYY年MM月DD日H:mm:ss'),
+            },
+          ])
+        })
+      }
       setWinner(_winner)
     }, 100)
     setRound(!round) //改变回合
@@ -104,7 +135,12 @@ function App() {
       image.style.height = '100px'
       setServeHistorys([
         ...serveHistorys,
-        { squares: [...squares], image: image, round: round ? true : false },
+        {
+          squares: [...squares],
+          image: image,
+          round: round ? true : false,
+          time: dayjs(new Date()).format('YYYY年MM月DD日H:mm:ss'),
+        },
       ])
     })
   }
@@ -121,59 +157,97 @@ function App() {
   function changeOpen() {
     setOpen(true)
   }
+  const loadingFn = async () => {
+    // let percent = 0;
+    // for (let i = 0; i <= 100; i++) {
+    //   await new Promise((resolve) => setTimeout(resolve, 100)) // 模拟加载延迟
+    //   // console.log(percent)
+    //   setPercent(p => {
+    //     console.log('p + 1---', p)
+    //     return p + 1
+    //   }) // 更新进度条状态
+    // }
+    setTimeout(() => setPercent(percent + 1), 1000)
+  }
+  console.log('useState percent---')
+  const [percent, setPercent] = useState(0)
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    if (percent <= 100) {
+      loadingFn()
+    }
+    if (percent === 101) {
+      setLoading(false)
+    }
+  }, [percent])
   return (
     <div className="container">
-      {/* <Navigate setOpen={setOpen}></Navigate> */}
-      <div className="features">
-        <button className="serveBtn" onClick={changeOpen}>
-          保存记录
-        </button>
-        <button className="serveBtn" onClick={changeOpen}>
-          比赛记录
-        </button>
-      </div>
-      <div className="wrap">
-        <div className="black-score">
-          <div className="chess-black">
-            <span>黑</span>
-          </div>
-          <div className="score">积分：{blackStore}</div>
+      <div className="img" style={{ display: loading ? '' : 'none' }}>
+        <img src={background} alt="" width="100%" height="960px" />
+        <div className="load-text">
+          <span style={{ animationDelay: '0.1s' }}>正</span>
+          <span style={{ animationDelay: '0.2s' }}>在</span>
+          <span style={{ animationDelay: '0.3s' }}>进</span>
+          <span style={{ animationDelay: '0.4s' }}>入</span>
+          <span style={{ animationDelay: '0.5s' }}>对</span>
+          <span style={{ animationDelay: '0.6s' }}>局</span>
         </div>
-        <Board
-          isBegin={isBegin}
-          setStore={{ setBlackStore, setWhiteStore }}
-          handleRegret={handleRegret}
-          changeRound={changeRound}
-          squares={squares}
-        ></Board>
-        <div className="white-score">
-          <div className="chess-white">
-            <span>白</span>
-          </div>
-          <div className="score">积分：{whiteStore}</div>
+        <div className="process">
+          <Progress percent={percent} strokeColor="#fff" />
         </div>
       </div>
-      <div className="buttons">
-        <button className="btn1 button" onClick={handleClick}>
-          <div className="text">开始</div>
-        </button>
-        <button className="btn2 button" onClick={saveChess}>
-          <div className="text">保存棋盘</div>
-        </button>
-        <button className="btn3 button" onClick={handleRegret}>
-          <div className="text">悔棋</div>
-        </button>
-      </div>
-      <div className="float"></div>
-      <div
-        className="popup-winner"
-        style={{ display: `${winner === '' ? 'none' : 'block'}` }}
-      >
-        <Popup
-          winner={winner === 'black' ? '黑' : '白'}
-          setWinner={setWinner}
-          playAgain={handleClick}
-        ></Popup>
+      <div style={{ display: loading ? 'none' : 'block' }}>
+        <div className="features">
+          <button className="serveBtn" onClick={changeOpen}>
+            保存记录
+          </button>
+          <button className="serveBtn" onClick={() => setPlayOpen(true)}>
+            比赛记录
+          </button>
+        </div>
+        <div className="wrap">
+          <div className="black-score">
+            <div className="chess-black">
+              <span>黑</span>
+            </div>
+            <div className="score">积分：{blackStore}</div>
+          </div>
+          <Board
+            isBegin={isBegin}
+            setStore={{ setBlackStore, setWhiteStore }}
+            handleRegret={handleRegret}
+            changeRound={changeRound}
+            squares={squares}
+          ></Board>
+          <div className="white-score">
+            <div className="chess-white">
+              <span>白</span>
+            </div>
+            <div className="score">积分：{whiteStore}</div>
+          </div>
+        </div>
+        <div className="buttons">
+          <button className="btn1 button" onClick={handleClick}>
+            <div className="text">开始</div>
+          </button>
+          <button className="btn2 button" onClick={saveChess}>
+            <div className="text">保存棋盘</div>
+          </button>
+          <button className="btn3 button" onClick={handleRegret}>
+            <div className="text">悔棋</div>
+          </button>
+        </div>
+        <div className="float"></div>
+        <div
+          className="popup-winner"
+          style={{ display: `${winner === '' ? 'none' : 'block'}` }}
+        >
+          <Popup
+            winner={winner === 'black' ? '黑' : '白'}
+            setWinner={setWinner}
+            playAgain={handleClick}
+          ></Popup>
+        </div>
       </div>
       <ServeHistory
         serveHistorys={serveHistorys}
@@ -184,6 +258,12 @@ function App() {
         history={history}
         setRound={setRound}
       ></ServeHistory>
+      <PlayHistory
+        playHistory={playHistory}
+        playOpen={playOpen}
+        setPlayOpen={setPlayOpen}
+        setPlayHistory={setPlayHistory}
+      ></PlayHistory>
     </div>
   )
 }
