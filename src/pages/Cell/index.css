@@ -50,7 +50,7 @@ img {
   content: '';
   display: block;
   width: 21px;
-  height: 21px;
+  height: 22px;
   border-left: 1.5px solid #000;
   border-bottom: 1.5px solid #000;
 }
@@ -115,7 +115,7 @@ img {
   content: '';
   display: block;
   width: 21px;
-  height: 21px;
+  height: 22px;
   border-right: 1.5px solid #000;
   border-bottom: 1.5px solid #000;
 }
@@ -142,8 +142,8 @@ img {
   top: 0;
   content: '';
   display: block;
-  width: 21px;
-  height: 21px;
+  width: 22px;
+  height: 22px;
   border-right: 1.5px solid #000;
   border-bottom: 1.5px solid #000;
 }
@@ -170,7 +170,7 @@ img {
   bottom: 0;
   content: '';
   display: block;
-  width: 21px;
+  width: 22px;
   height: 21px;
   border-top: 1.5px solid #000;
   border-right: 1.5px solid #000;
@@ -198,7 +198,7 @@ img {
   top: 0;
   content: '';
   display: block;
-  width: 21px;
+  width: 22px;
   height: 21px;
   border-bottom: 1.5px solid #000;
   border-right: 1.5px solid #000;

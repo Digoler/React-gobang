@@ -124,7 +124,14 @@ function App() {
   return (
     <div className="container">
       {/* <Navigate setOpen={setOpen}></Navigate> */}
-      <button onClick={changeOpen}></button>
+      <div className="features">
+        <button className="serveBtn" onClick={changeOpen}>
+          保存记录
+        </button>
+        <button className="serveBtn" onClick={changeOpen}>
+          比赛记录
+        </button>
+      </div>
       <div className="wrap">
         <div className="black-score">
           <div className="chess-black">
