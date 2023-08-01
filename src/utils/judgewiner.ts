@@ -32,7 +32,7 @@ function judgeVertical(squares: any, index: number, type: string) {
       break
     }
   }
-  return chessCount === 5
+  return chessCount >= 5
 }
 //2.判断水平方向上
 function judgeLevel(squares: any, index: number, type: string) {
@@ -64,7 +64,7 @@ function judgeLevel(squares: any, index: number, type: string) {
       break
     }
   }
-  return chessCount === 5
+  return chessCount >= 5
 }
 //3.判断从左上到右下
 function judgeTopLeftToBottomRight(squares: any, index: number, type: string) {
@@ -90,7 +90,7 @@ function judgeTopLeftToBottomRight(squares: any, index: number, type: string) {
       break
     }
   }
-  return chessCount === 5
+  return chessCount >= 5
 }
 function computeTopLeftConfine(index: number) {
   let leftLength = index - Math.floor(index / 15) * 15
@@ -146,7 +146,7 @@ function judgeLeftBottomToRightTop(squares: any, index: number, type: string) {
       break
     }
   }
-  return chessCount === 5
+  return chessCount >= 5
 }
 function computeLeftBottomConfine(index: number) {
   let leftLength = index - Math.floor(index / 15) * 15

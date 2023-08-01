@@ -13,34 +13,14 @@ import dayjs from 'dayjs'
 import background from './assets/background.jpeg'
 import { Progress } from 'antd'
 
-function judgeWinner(
-  squares: any,
-  index: number,
-  setScore: any,
-  round: boolean,
-  type: string,
-  setBegin: Function,
-) {
-  let isWin = judge(squares, index, type)
-  console.log('isWin---', isWin)
-  if (isWin) {
-    if (round) {
-      setScore.setBlackStore((store: number) => store + 10)
-      setBegin((v: boolean) => !v)
-      return 'black'
-    } else {
-      setScore.setWhiteStore((store: number) => store + 10)
-      setBegin((v: boolean) => !v)
-      return 'white'
-    }
-  }
-  return ''
+function judgeWinner(squares: any, index: number, type: string) {
+  return judge(squares, index, type)
 }
 
 function App() {
   const [isBegin, setBegin] = useState(false) //判断是否开始游戏
-  const [blackStore, setBlackStore] = useState(0) //设置黑棋的分数
-  const [whiteStore, setWhiteStore] = useState(0) //设置白棋的分数
+  const [blackScore, setBlackScore] = useState(0) //设置黑棋的分数
+  const [whiteScore, setWhiteScore] = useState(0) //设置白棋的分数
   const [round, setRound] = useState(false) //false代表白棋、true代表黑棋
   const [winner, setWinner] = useState('')
   const [history, setHistory] = useState([
@@ -52,6 +32,9 @@ function App() {
   const [serveHistorys, setServeHistorys] = useState<any>([])
   //比赛记录
   const [playHistory, setPlayHistory] = useState<any>([])
+  //控制进度条的数值
+  const [percent, setPercent] = useState(0)
+  const [loading, setLoading] = useState(true)
   //squares是history中的最新值
   const squares = useMemo(() => {
     return history[history.length - 1].squares
@@ -61,13 +44,12 @@ function App() {
   //点击打开比赛记录
   const [playOpen, setPlayOpen] = useState(false)
   //用于设置分数的函数
-  const setStore = {
-    setBlackStore,
-    setWhiteStore,
+  const setScore = {
+    setBlackScore,
+    setWhiteScore,
   }
   //改变回合触发的回调函数
   function changeRound(index: number) {
-    console.log('squares---', [...squares])
     //以下是添加新的历史值
     const tempSquares = [...squares]
     if (tempSquares[index]) {
@@ -82,40 +64,46 @@ function App() {
     ]
     setHistory(tempHistory)
     //判断输赢
-    setTimeout(() => {
-      console.log('squares AFTER---', [...squares])
-      let _winner = judgeWinner(
-        squares,
-        index,
-        setStore,
-        round,
-        tempSquares[index],
-        setBegin,
-      )
-      //添加历史记录到历史记录列表
-      if (_winner) {
-        let board = document.querySelector('.board') as HTMLElement
-        html2canvas(board).then(function (canvas) {
-          const image = new Image()
-          // 将 Canvas 转换为图像
-          image.src = canvas.toDataURL()
-          image.style.width = '100px'
-          image.style.height = '100px'
-          setPlayHistory([
-            ...playHistory,
-            {
-              squares: [...squares],
-              image: image,
-              winner: _winner,
-              time: dayjs(new Date()).format('YYYY年MM月DD日H:mm:ss'),
-            },
-          ])
-        })
+    let isWin = judgeWinner(squares, index, tempSquares[index])
+    let _winner = ''
+    if (isWin) {
+      if (round) {
+        setScore.setBlackScore((Score: number) => Score + 10)
+        _winner = 'black'
+      } else {
+        setScore.setWhiteScore((Score: number) => Score + 10)
+        _winner = 'white'
       }
-      setWinner(_winner)
-    }, 100)
+      setBegin((v: boolean) => !v)
+    }
+    //添加历史记录到历史记录列表
+    // setTimeout(() => {
+    // console.log(squares)
+    // }, 100)
+    setWinner(_winner)
     setRound(!round) //改变回合
   }
+  useEffect(() => {
+    if (winner) {
+      let board = document.querySelector('.board') as HTMLElement
+      html2canvas(board).then(function (canvas) {
+        const image = new Image()
+        // 将 Canvas 转换为图像
+        image.src = canvas.toDataURL()
+        image.style.width = '100px'
+        image.style.height = '100px'
+        setPlayHistory([
+          ...playHistory,
+          {
+            squares: [...squares],
+            image: image,
+            winner: winner,
+            time: dayjs(new Date()).format('YYYY年MM月DD日H:mm:ss'),
+          },
+        ])
+      })
+    }
+  }, [blackScore, whiteScore])
   function handleClick() {
     setBegin(true)
     setHistory([
@@ -158,20 +146,8 @@ function App() {
     setOpen(true)
   }
   const loadingFn = async () => {
-    // let percent = 0;
-    // for (let i = 0; i <= 100; i++) {
-    //   await new Promise((resolve) => setTimeout(resolve, 100)) // 模拟加载延迟
-    //   // console.log(percent)
-    //   setPercent(p => {
-    //     console.log('p + 1---', p)
-    //     return p + 1
-    //   }) // 更新进度条状态
-    // }
-    setTimeout(() => setPercent(percent + 1), 1000)
+    await setTimeout(() => setPercent(percent + 1), 80)
   }
-  console.log('useState percent---')
-  const [percent, setPercent] = useState(0)
-  const [loading, setLoading] = useState(true)
   useEffect(() => {
     if (percent <= 100) {
       loadingFn()
@@ -210,12 +186,10 @@ function App() {
             <div className="chess-black">
               <span>黑</span>
             </div>
-            <div className="score">积分：{blackStore}</div>
+            <div className="score">积分：{blackScore}</div>
           </div>
           <Board
             isBegin={isBegin}
-            setStore={{ setBlackStore, setWhiteStore }}
-            handleRegret={handleRegret}
             changeRound={changeRound}
             squares={squares}
           ></Board>
@@ -223,7 +197,7 @@ function App() {
             <div className="chess-white">
               <span>白</span>
             </div>
-            <div className="score">积分：{whiteStore}</div>
+            <div className="score">积分：{whiteScore}</div>
           </div>
         </div>
         <div className="buttons">
