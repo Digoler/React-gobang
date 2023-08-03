@@ -7,6 +7,8 @@
   height: 660px;
   background-color: #fff5e9;
   margin: 50px;
+  position: relative;
+  z-index: 1;
 }
 
 .board div:hover {

@@ -1,5 +1,5 @@
 import React from 'react'
-import './index.less'
+import './index.css'
 import { Cell } from '../Cell'
 
 export const Board: React.FC<any> = ({ isBegin, changeRound, squares }) => {
