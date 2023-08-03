@@ -1,0 +1,25 @@
+.sheet_title_style() {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px 0;
+  width: 20%;
+  height: 100px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.sheet_title,
+.item_sheet {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .order,
+  .time,
+  .image,
+  .win,
+  .action {
+    .sheet_title_style();
+  }
+}

@@ -155,7 +155,7 @@ function App() {
   return (
     <div className="container">
       <div className="img" style={{ display: loading ? '' : 'none' }}>
-        <img src={background} alt="" width="100%" height="960px" />
+        <img src={background} alt="" width="100%" height="100%" />
         <LoadText></LoadText>
         <div className="process">
           <Progress percent={percent} strokeColor="#fff" />

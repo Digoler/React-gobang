@@ -1,5 +1,5 @@
 import React from 'react'
-import './index.css'
+import './index.less'
 import { Image, Modal, Button, message, Popconfirm, Empty } from 'antd'
 export const ServeHistory: React.FC<any> = ({
   serveHistorys,
@@ -45,7 +45,7 @@ export const ServeHistory: React.FC<any> = ({
       width={1000}
     >
       <div className="lists">
-        <div className="titles">
+        <div className="sheet_title">
           <div className="order">序号</div>
           <div className="time">时间</div>
           <div className="image">棋盘图</div>
@@ -56,7 +56,7 @@ export const ServeHistory: React.FC<any> = ({
         ></Empty>
         {serveHistorys.map((item: any, index: number) => {
           return (
-            <div className="item" key={index}>
+            <div className="item_sheet" key={index}>
               <div className="order">{index}</div>
               <div className="time">{item.time}</div>
               <div className="image">
