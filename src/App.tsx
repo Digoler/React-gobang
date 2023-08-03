@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { Board } from './pages/Board'
 import { Popup } from './pages/Popup'
+import { LoadText } from './pages/LoadText'
 import { judge } from './utils/judgewiner'
 import black from './assets/black.png'
 import white from './assets/white.png'
-// import { Navigate } from './pages/Navigate'
 import html2canvas from 'html2canvas'
 import { ServeHistory } from './pages/serveHistory'
 import { PlayHistory } from './pages/PlayHistory'
@@ -76,10 +76,6 @@ function App() {
       }
       setBegin((v: boolean) => !v)
     }
-    //添加历史记录到历史记录列表
-    // setTimeout(() => {
-    // console.log(squares)
-    // }, 100)
     setWinner(_winner)
     setRound(!round) //改变回合
   }
@@ -145,10 +141,10 @@ function App() {
   function changeOpen() {
     setOpen(true)
   }
-  const loadingFn = async () => {
-    await setTimeout(() => setPercent(percent + 1), 80)
-  }
   useEffect(() => {
+    const loadingFn = async () => {
+      await setTimeout(() => setPercent(percent + 1), 80)
+    }
     if (percent <= 100) {
       loadingFn()
     }
@@ -160,14 +156,7 @@ function App() {
     <div className="container">
       <div className="img" style={{ display: loading ? '' : 'none' }}>
         <img src={background} alt="" width="100%" height="960px" />
-        <div className="load-text">
-          <span style={{ animationDelay: '0.1s' }}>正</span>
-          <span style={{ animationDelay: '0.2s' }}>在</span>
-          <span style={{ animationDelay: '0.3s' }}>进</span>
-          <span style={{ animationDelay: '0.4s' }}>入</span>
-          <span style={{ animationDelay: '0.5s' }}>对</span>
-          <span style={{ animationDelay: '0.6s' }}>局</span>
-        </div>
+        <LoadText></LoadText>
         <div className="process">
           <Progress percent={percent} strokeColor="#fff" />
         </div>

@@ -116,34 +116,3 @@ button:hover {
   bottom: 5%;
   width: 80%;
 }
-.load-text {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  bottom: 8%;
-  font-size: 2rem;
-}
-
-.load-text span {
-  position: relative;
-  display: inline-block;
-  color: #fff;
-  text-transform: uppercase;
-  animation: animate 2s ease-in-out infinite;
-  /* animation-delay: calc(0.1s * var(i)); */
-}
-
-@keyframes animate {
-  0% {
-    transform: translateY(0px);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  80% {
-    transform: translateY(-20px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
